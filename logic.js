@@ -112,6 +112,9 @@ function set_night_or_day_color(pod){
 function from_unix_to_ordinary_time(unix){
   var date = new Date(unix * 1000);
   var hours = date.getHours() -1;
+  if(hours < 0){
+    hours = hours + 24;
+  }
   var minutes = date.getMinutes();
   if(parseInt(minutes) < 10){
     minutes = "0"+minutes;
