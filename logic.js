@@ -17,10 +17,13 @@ function view_city_data(city){
   $.get("https://api.openweathermap.org/data/2.5/forecast?q="+city+"&units=metric&lang=sv&appid=4922dd64b949f61c5b8aa3ae0b007a87", function(data){
     view_forecast_data(data);
     forecatsData = data;
+    console.log(data)
   });
 
   $.get("https://api.openweathermap.org/data/2.5/weather?q="+city+"&units=metric&lang=sv&appid=4922dd64b949f61c5b8aa3ae0b007a87&", function(data){
     view_current_data(data,data["name"],data["timezone"])
+
+    console.log(data)
   });
   });
 
@@ -29,8 +32,8 @@ function view_city_data(city){
 function view_current_data(data, cityName, timezone){
 
   $("#cityName").text(cityName);
-  $("#currentTemp").text(data["main"]["temp"]);
-  $("#minAndMax").text(data["main"]["temp_min"] + " / " + data["main"]["temp_max"])
+  $("#currentTemp").text(data["main"]["temp"] + " °C");
+  $("#minAndMax").text(data["main"]["temp_min"] + "°C / " + data["main"]["temp_max"] + " °C")
   $("#description").text(data["weather"]["0"]["description"]);
   $("#currentTime").text(from_unix_to_ordinary_time(data["dt"] + timezone));
 
@@ -58,7 +61,7 @@ function view_forecast_data(data){
   for(var i = 0; i < 6; i++){
     var weatherInfo = data["list"][i.toString()];
 
-    var temp = weatherInfo["main"]["temp"];
+    var temp = weatherInfo["main"]["temp"] + " °C";
     var time = from_unix_to_ordinary_time(weatherInfo["dt"] + data["city"]["timezone"]);
     var imageUrl = "http://openweathermap.org/img/wn/" + weatherInfo["weather"]["0"]["icon"] + "@2x.png";
 
@@ -73,7 +76,7 @@ function view_forecast_data(data){
   for(var i = 7; i < 40; i += 8){
     var weatherInfo = data["list"][i.toString()];
 
-    var temp = weatherInfo["main"]["temp_min"] + " / " + weatherInfo["main"]["temp_max"];
+    var temp = weatherInfo["main"]["temp_min"] + "°C / " + weatherInfo["main"]["temp_max"] + " °C";
     var date = weatherInfo["dt_txt"].split(" ")[0];
     var imageUrl = "http://openweathermap.org/img/wn/" + weatherInfo["weather"]["0"]["icon"] + "@2x.png";
 
@@ -123,24 +126,38 @@ function from_unix_to_ordinary_time(unix){
   return time
 }
 
-lastclicked = ''
+var lastclicked = '';
+var color = '';
+var isLastClickedADay = false;
+
 $(".threeHoursForecast").click(function(){
   change_view_to_forecasted_data($(this));
 
   $(this).css("background-color", "#D1D1D1")
-  if (lastclicked != ''){
-    lastclicked.css("background-color", "")
+  if (isLastClickedADay){
+    lastclicked.css("background-color", color);
+  }else{
+    if(lastclicked != ''){
+      lastclicked.css("background-color", "");
+    }
   }
   lastclicked = $(this);
+  isLastClickedADay = false;
 });
 
 $(".fiveDaysForecast").click(function(){
   change_view_to_forecasted_data($(this));
+  color = $(this).css("background");
   $(this).css("background-color", "#D1D1D1")
-  if (lastclicked != ''){
-    lastclicked.css("background-color", "")
+  if (isLastClickedADay){
+    lastclicked.css("background-color", color);
+  }else{
+    if(lastclicked != ''){
+      lastclicked.css("background-color", "");
+    }
   }
   lastclicked = $(this);
+  isLastClickedADay = true;
 });
 
 function change_view_to_forecasted_data(element){
